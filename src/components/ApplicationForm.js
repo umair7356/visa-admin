@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import CountrySelect from './CountrySelect';
 
 const ApplicationForm = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -115,14 +116,13 @@ const ApplicationForm = ({ onClose, onSubmit }) => {
               <label htmlFor="nationality" className="block text-sm font-medium text-gray-700 mb-1">
                 Nationality *
               </label>
-              <input
-                type="text"
+              <CountrySelect
                 id="nationality"
                 name="nationality"
                 value={formData.nationality}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="Select or search country..."
               />
             </div>
 
