@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-
+import api from '../utils/axiosConfig';
 const ApplicationTable = ({ applications, onUpdateStatus, onEdit, onUploadDocument, onDelete }) => {
   const [uploadingFor, setUploadingFor] = useState(null);
   const [statusUpdating, setStatusUpdating] = useState(null);
+
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -43,6 +44,23 @@ const ApplicationTable = ({ applications, onUpdateStatus, onEdit, onUploadDocume
     }
   };
 
+const handlePreview = async (id) => {
+  try {
+    const response = await api.get(`/applications/${id}/document/preview`, {
+      responseType: "blob",
+    });
+
+    const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+    const url = URL.createObjectURL(pdfBlob);
+    window.open(url, "_blank");
+
+  } catch (err) {
+    console.error("Preview Error:", err);
+    alert("Cannot preview PDF");
+  }
+};
+
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       <div className="overflow-x-auto">
@@ -72,6 +90,9 @@ const ApplicationTable = ({ applications, onUpdateStatus, onEdit, onUploadDocume
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Document
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                View
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -120,10 +141,20 @@ const ApplicationTable = ({ applications, onUpdateStatus, onEdit, onUploadDocume
                     </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {app.documentFilePath ? (
+                    {app.documentUrl ? (
                       <span className="text-green-600">✓ Uploaded</span>
                     ) : (
                       <span className="text-gray-400">No document</span>
+                    )}
+                 
+                  </td>
+                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {app.documentUrl ? (
+                      <button onClick={() => handlePreview(app._id)}>
+                      Preview PDF
+                    </button>
+                    ):(
+ <span className="text-gray-400">No document Uploaded</span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
