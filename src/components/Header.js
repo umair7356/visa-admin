@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Header = ({ onLogout, adminEmail }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [logoError, setLogoError] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleLogout = () => {
     if (onLogout) {
@@ -16,10 +18,18 @@ const Header = ({ onLogout, adminEmail }) => {
     }
   };
 
-  // Don't show header on login page
-  if (location.pathname === '/login') {
-    return null;
-  }
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  if (location.pathname === '/login') return null;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
@@ -41,7 +51,7 @@ const Header = ({ onLogout, adminEmail }) => {
             )}
           </Link>
 
-          {/* Navigation Links */}
+          {/* Navigation & Profile */}
           <nav className="flex items-center space-x-4 md:space-x-6">
             <Link
               to="/dashboard"
@@ -55,7 +65,6 @@ const Header = ({ onLogout, adminEmail }) => {
             </Link>
             <button
               onClick={() => {
-                // Trigger add application form - this will be handled by parent
                 const event = new CustomEvent('openAddForm');
                 window.dispatchEvent(event);
               }}
@@ -63,17 +72,39 @@ const Header = ({ onLogout, adminEmail }) => {
             >
               Add Application
             </button>
+
+            {/* Profile Icon */}
             {adminEmail && (
-              <span className="hidden md:inline-block px-3 py-2 text-sm text-gray-600">
-                {adminEmail}
-              </span>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center text-lg font-bold focus:outline-none"
+                >
+                  {adminEmail[0].toUpperCase()}
+                </button>
+
+                {/* Dropdown */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg py-1 z-50">
+                    <button
+                      onClick={() => {
+                        navigate('/profile');
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                    >
+                      Profile
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium transition-colors"
-            >
-              Logout
-            </button>
           </nav>
         </div>
       </div>
@@ -82,4 +113,3 @@ const Header = ({ onLogout, adminEmail }) => {
 };
 
 export default Header;
-

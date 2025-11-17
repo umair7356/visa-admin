@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import Profile from './components/Profile';
 
 function App() {
   return (
@@ -18,6 +19,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
